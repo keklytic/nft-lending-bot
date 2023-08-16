@@ -81,7 +81,7 @@ function getPrices() {
             })
 
               // need add bot first before can send message
-
+              
               client.guilds.cache.get('832632673155285052').channels.cache.get('832632673155285055').send({embeds: [embed]});
 
 
