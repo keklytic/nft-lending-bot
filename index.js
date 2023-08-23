@@ -65,10 +65,10 @@ function getPrices() {
 
             const embed = new EmbedBuilder()
             .setColor('Random')
-	    .setURL('https://dune.com/impossiblefinance/nft-lending-aggregated-dash')
+            .setURL('https://dune.com/impossiblefinance/nft-lending-aggregated-dash')
             .setAuthor({ name: 'Impossible Finance', iconURL: 'https://impossible.finance/favicon.png', url: 'https://impossible.finance/' })
             .setTitle(`Today Loan Volume - ${(loan_today).toLocaleString().replace(/,/g,process.env.THOUSAND_SEPARATOR)}${process.env.CURRENCY_SYMBOL}`)
-            .setImage('https://media.discordapp.net/attachments/1006769849181163563/1141931990845755482/nft_lending.png?width=1067&height=600')
+            .setImage('https://media.discordapp.net/attachments/1006769849181163563/1140495521195241512/nft_lending.png?width=1067&height=600')
             .setDescription(`Top 3 Loan Volume By Platform:
             ${loan_today1}
             ${loan_today2}
@@ -85,6 +85,7 @@ function getPrices() {
               
               client.guilds.cache.get('832632673155285052').channels.cache.get('832632673155285055').send({embeds: [embed]});
 
+              client.guilds.cache.get('820199918135148564').channels.cache.get('1143760620118876200').send({embeds: [embed]});
 
             
 
@@ -123,10 +124,26 @@ function getPrices() {
                 + res.data.result.rows[5].nft_deposit + res.data.result.rows[6].nft_deposit + res.data.result.rows[7].nft_deposit 
                 + res.data.result.rows[8].nft_deposit + res.data.result.rows[9].nft_deposit + res.data.result.rows[10].nft_deposit
 
-               
+                // interaction.reply({
+                    
+                //     content: `This week top collection deposit:
+                //      ${currentPrice0}
+                //      ${currentPrice1}
+                //      ${currentPrice2}
+                //      ${currentPrice3}
+                //      ${currentPrice4}
+                //      ${currentPrice5}
+                //      ${currentPrice6}
+                //      ${currentPrice7}
+                //      ${currentPrice8}
+                //      ${currentPrice9}
+                //      ${currentPrice10}
+
+                //      `
+                // })
                 const embed2 = new EmbedBuilder()
                 .setTitle(`Last 7 days Top Deposit - ${this_week_deposit}`)
-		.setURL('https://dune.com/impossiblefinance/nft-lending-aggregated-dash')
+                .setURL('https://dune.com/impossiblefinance/nft-lending-aggregated-dash')
                 .setAuthor({ name: 'Impossible Finance', iconURL: 'https://impossible.finance/favicon.png', url: 'https://impossible.finance/' })
                 .setImage('https://media.discordapp.net/attachments/1006769849181163563/1140830180265435229/F3bE3ovbcAAJQJx.png?width=600&height=600')
                 .setDescription(`This week top collection deposit:
@@ -154,7 +171,8 @@ function getPrices() {
 
                 client.guilds.cache.get('832632673155285052').channels.cache.get('832632673155285055').send({embeds: [embed2]});
 
-    
+                client.guilds.cache.get('820199918135148564').channels.cache.get('1143760620118876200').send({embeds: [embed2]});
+
                 
             }})
 
@@ -182,13 +200,28 @@ function getPrices() {
                 + res.data.result.rows[8].total_nft_liquidate + res.data.result.rows[9].total_nft_liquidate + res.data.result.rows[10].total_nft_liquidate
 
 
-               
+                // interaction.reply({
+                //     content: `This week top collection liquidated:
+                //      ${currentPrice0}
+                //      ${currentPrice1}
+                //      ${currentPrice2}
+                //      ${currentPrice3}
+                //      ${currentPrice4}
+                //      ${currentPrice5}
+                //      ${currentPrice6}
+                //      ${currentPrice7}
+                //      ${currentPrice8}
+                //      ${currentPrice9}
+                //      ${currentPrice10}
+
+                //      `
+                // })
 
                 const embed3 = new EmbedBuilder()
                 .setColor('Random')
-		.setURL('https://dune.com/impossiblefinance/nft-lending-aggregated-dash')
-            	.setAuthor({ name: 'Impossible Finance', iconURL: 'https://impossible.finance/favicon.png', url: 'https://impossible.finance/' })
                 .setTitle(`Last 7 days Total Liquidate - ${this_week_liquidate}`)
+                .setURL('https://dune.com/impossiblefinance/nft-lending-aggregated-dash')
+                .setAuthor({ name: 'Impossible Finance', iconURL: 'https://impossible.finance/favicon.png', url: 'https://impossible.finance/' })
                 .setImage('https://media.discordapp.net/attachments/1006769849181163563/1140830180265435229/F3bE3ovbcAAJQJx.png?width=600&height=600')
                 .setDescription(`This week top collection liquidated:
                 ${currentPrice0}
@@ -213,7 +246,8 @@ function getPrices() {
 
             client.guilds.cache.get('832632673155285052').channels.cache.get('832632673155285055').send({embeds: [embed3]});
 
-            
+            client.guilds.cache.get('820199918135148564').channels.cache.get('1143760620118876200').send({embeds: [embed3]});
+
             }})
           
             
