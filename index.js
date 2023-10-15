@@ -111,24 +111,17 @@ async function getBlock() {
 async function getCreation() {
 
     await getBlock()
-
-    // const guildId = '1139941056994091029'
-    // const guild = client.guilds.cache.get(guildId)
-	// API for price data.
-
         // eth
-        await axios.get(`https://api.covalenthq.com/v1/eth-mainnet/events/topics/0xd51a9c61267aa6196961883ecf5ff2da6619c37dac0fa92122513fb32c032d2d/?starting-block=${eth_block[7]}&ending-block=latest&page-size=100000`, options).then(res => {
-            // If we got a valid response
+    await axios.get(`https://api.covalenthq.com/v1/eth-mainnet/events/topics/0xd51a9c61267aa6196961883ecf5ff2da6619c37dac0fa92122513fb32c032d2d/?starting-block=${eth_block[7]}&ending-block=latest&page-size=100000`, options).then(res => {
         aa_eth_today = res.data.data.items.length
-        
         })
+
 
         await axios.get(`https://api.covalenthq.com/v1/eth-mainnet/events/topics/0xd51a9c61267aa6196961883ecf5ff2da6619c37dac0fa92122513fb32c032d2d/?starting-block=${eth_block[6]}&ending-block=${eth_block[7]}&page-size=100000`, options).then(res => {
             // If we got a valid response
         aa_eth_ytd = res.data.data.items.length
         
         })
-
 
         // optimism
         await axios.get(`https://api.covalenthq.com/v1/optimism-mainnet/events/topics/0xd51a9c61267aa6196961883ecf5ff2da6619c37dac0fa92122513fb32c032d2d/?starting-block=${op_block[7]}&ending-block=latest&page-size=100000`, options).then(res => {
@@ -278,7 +271,6 @@ async function getUserOp(){
         }
     }
 
-
     // optimism
     var uop_op_today = 0
     while (number_test(userop_op_today / 10000) == true){ 
@@ -292,6 +284,8 @@ async function getUserOp(){
             break;
         }
     }
+    
+
 
     var uop_op_ytd = 0
     while (number_test(userop_op_ytd / 10000) == true){ 
@@ -438,9 +432,12 @@ async function getUserOp(){
             break;
         }
     }
+}
+          
+            
     
 
-}
+
 
 async function getUserOpCount(){
 
