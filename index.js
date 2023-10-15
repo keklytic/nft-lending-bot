@@ -5,11 +5,13 @@ import dotenv from 'dotenv';
 import axios from 'axios';
 import { GuildManager } from 'discord.js';
 
+
 dotenv.config()
 
 const client = new Client({
     intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages]
 });
+
 
 function convertToInternationalCurrencySystem (labelValue) {
 
@@ -30,240 +32,468 @@ function convertToInternationalCurrencySystem (labelValue) {
 
 }
 
+        var eth_block = []
+        var op_block = []
+        var arb_block = []
+        var avax_block = []
+        var pol_block = []
+        var bsc_block = []
+        var base_block = []
 
-function getPrices() {
+        var aa_eth_today
+        var aa_eth_ytd
+        var aa_op_today
+        var aa_op_ytd
+        var aa_arb_today
+        var aa_arb_ytd
+        var aa_pol_today
+        var aa_pol_ytd
+        var aa_avax_today
+        var aa_avax_ytd
+        var aa_bsc_today
+        var aa_bsc_ytd
+        var aa_base_today
+        var aa_base_ytd
 
-    const guildId = '1139941056994091029'
-    const guild = client.guilds.cache.get(guildId)
+        var userop_eth_today = 0
+        var userop_eth_ytd = 0
+        var userop_op_today = 0
+        var userop_op_ytd = 0
+        var userop_arb_today = 0
+        var userop_arb_ytd = 0
+        var userop_pol_today = 0
+        var userop_pol_ytd = 0
+        var userop_avax_today = 0
+        var userop_avax_ytd = 0
+        var userop_bsc_today = 0
+        var userop_bsc_ytd = 0
+        var userop_base_today = 0
+        var userop_base_ytd = 0
+
+        const options = {
+            method: 'GET',
+            headers: {
+              accept: 'application/json',
+              'Authorization': 'Basic ' + Buffer.from(process.env.COVALENT_API_KEY + ':').toString('base64')
+            }
+            }
+
+            function number_test(n)
+                {
+                var result = (n - Math.floor(n)) !== 0; 
+                
+                if (result)
+                    return false; // has decimal
+                else
+                    return true; // whole number
+                }
+
+async function getBlock() {
+
+    await axios.get("https://api.flipsidecrypto.com/api/v2/queries/6f9fcce0-64df-483c-8851-7fcdb96bb7f4/data/latest").then(res => {
+    if(res){
+        for (var i = 0; i < res.data.length; i ++){
+            eth_block.push(res.data[i].ETH_BLOCK)
+            op_block.push(res.data[i].OPTIMISM_BLOCK)
+            arb_block.push(res.data[i].ARBITRUM_BLOCK)
+            pol_block.push(res.data[i].POLYGON_BLOCK)
+            avax_block.push(res.data[i].AVALANCHE_BLOCK)
+            bsc_block.push(res.data[i].BSC_BLOCK)
+            base_block.push(res.data[i].BASE_BLOCK)
+
+        }
+    }
+    console.log(eth_block)
+
+})
+}
+
+async function getCreation() {
+
+    await getBlock()
+
+    // const guildId = '1139941056994091029'
+    // const guild = client.guilds.cache.get(guildId)
 	// API for price data.
-	axios.get(`https://api.dune.com/api/v1/query/2847738/results?api_key=${process.env.API_KEY}`).then(res => {
-		// If we got a valid response
-		if(res.data ) {
-			let loan_today = res.data.result.rows[0].total_borrow_usd
 
-            let loan_today1 = res.data.result.rows[0].platform.concat(' - ').concat(convertToInternationalCurrencySystem(res.data.result.rows[0].borrow_volume_usd))
-            let loan_today2 = res.data.result.rows[1].platform.concat(' - ').concat(convertToInternationalCurrencySystem(res.data.result.rows[1].borrow_volume_usd))
-            let loan_today3 = res.data.result.rows[2].platform.concat(' - ').concat(convertToInternationalCurrencySystem(res.data.result.rows[2].borrow_volume_usd))
-            let loan_today4 = res.data.result.rows[3].platform.concat(' - ').concat(res.data.result.rows[3].borrow_volume_usd)
-            let loan_today5 = res.data.result.rows[4].platform.concat(' - ').concat(res.data.result.rows[4].borrow_volume_usd)
-
-			// let currentPrice = [res.data.result.rows[0].collection.concat('-').concat(res.data.result.rows[0].nft_deposit),
-			// res.data.result.rows[1].collection.concat('-').concat(res.data.result.rows[1].nft_deposit),
-			// res.data.result.rows[2].collection.concat('-').concat(res.data.result.rows[2].nft_deposit)]
-			// Default to zero
-			// let priceChange = res.data.result.rows[0].total_borrow_usd - res.data.result.rows[1].total_borrow_usd || 0 // Default to zero
-            // client.user.setPresence({ activities: [{ name: `${convertToInternationalCurrencySystem(loan_today)} | Loan 24hrs` }], status: 'online' });
-
-
-            client.user.setPresence({ activities: [{ name: `NFT bot | Loan 24hrs` }], status: 'online' });
-
-            guild.members.cache.get(client.user.id).setNickname(`Total Loan: ${convertToInternationalCurrencySystem(loan_today).toLocaleString().replace(/,/g,process.env.THOUSAND_SEPARATOR)}${process.env.CURRENCY_SYMBOL}`)
-
-            // client.GuildMember.Nickname(`${(loan_today).toLocaleString().replace(/,/g,process.env.THOUSAND_SEPARATOR)}${process.env.CURRENCY_SYMBOL}`)
-
-			console.log('Updated price to', loan_today)
-
-            const embed = new EmbedBuilder()
-            .setColor('Random')
-            .setTitle(`Today Loan Volume - ${(loan_today).toLocaleString().replace(/,/g,process.env.THOUSAND_SEPARATOR)}${process.env.CURRENCY_SYMBOL}`)
-            .setImage('https://media.discordapp.net/attachments/1006769849181163563/1140495521195241512/nft_lending.png?width=1067&height=600')
-            .setDescription(`Top 3 Loan Volume By Platform:
-            ${loan_today1}
-            ${loan_today2}
-            ${loan_today3}
-           
-            
-        `)
-            
-            client.channels.fetch('1140496119789527120')
-            .then(channel => {
-            channel.send({embeds: [embed]});
-            })
-
-              // need add bot first before can send message
-              
-              client.guilds.cache.get('832632673155285052').channels.cache.get('832632673155285055').send({embeds: [embed]});
-
-
-            
-
-            
-
-    //         client.channels.fetch('1140496119789527120')
-    //         .then(channel => {
-    //         channel.send(`Loan Today - ${(loan_today).toLocaleString().replace(/,/g,process.env.THOUSAND_SEPARATOR)}${process.env.CURRENCY_SYMBOL}`);
-    // })
-		}
-		else
-			console.log('Could not load count data for', process.env.COIN_ID)
-
-	}).catch(err => console.log('Error at dune.com data:', err))
-
-
-    axios.get(`https://api.dune.com/api/v1/query/2725441/results?api_key=${process.env.API_KEY}`).then(res => {
+        // eth
+        await axios.get(`https://api.covalenthq.com/v1/eth-mainnet/events/topics/0xd51a9c61267aa6196961883ecf5ff2da6619c37dac0fa92122513fb32c032d2d/?starting-block=${eth_block[7]}&ending-block=latest&page-size=100000`, options).then(res => {
             // If we got a valid response
-           
-           
-            if(res.data ) {
-                let currentPrice0 = res.data.result.rows[0].collection.concat(' - ').concat(res.data.result.rows[0].nft_deposit)
-                let currentPrice1 = res.data.result.rows[1].collection.concat(' - ').concat(res.data.result.rows[1].nft_deposit)
-                let currentPrice2 = res.data.result.rows[2].collection.concat(' - ').concat(res.data.result.rows[2].nft_deposit)
-                let currentPrice3 = res.data.result.rows[3].collection.concat(' - ').concat(res.data.result.rows[3].nft_deposit)
-                let currentPrice4 = res.data.result.rows[4].collection.concat(' - ').concat(res.data.result.rows[4].nft_deposit)
-                let currentPrice5 = res.data.result.rows[5].collection.concat(' - ').concat(res.data.result.rows[5].nft_deposit)
-                let currentPrice6 = res.data.result.rows[6].collection.concat(' - ').concat(res.data.result.rows[6].nft_deposit)
-                let currentPrice7 = res.data.result.rows[7].collection.concat(' - ').concat(res.data.result.rows[7].nft_deposit)
-                let currentPrice8 = res.data.result.rows[8].collection.concat(' - ').concat(res.data.result.rows[8].nft_deposit)
-                let currentPrice9 = res.data.result.rows[9].collection.concat(' - ').concat(res.data.result.rows[9].nft_deposit)
-                let currentPrice10 = res.data.result.rows[10].collection.concat(' - ').concat(res.data.result.rows[10].nft_deposit)
-            
-                let this_week_deposit = res.data.result.rows[0].nft_deposit + res.data.result.rows[1].nft_deposit
-                + res.data.result.rows[2].nft_deposit + res.data.result.rows[3].nft_deposit + res.data.result.rows[4].nft_deposit 
-                + res.data.result.rows[5].nft_deposit + res.data.result.rows[6].nft_deposit + res.data.result.rows[7].nft_deposit 
-                + res.data.result.rows[8].nft_deposit + res.data.result.rows[9].nft_deposit + res.data.result.rows[10].nft_deposit
+        aa_eth_today = res.data.data.items.length
+        
+        })
 
-                // interaction.reply({
-                    
-                //     content: `This week top collection deposit:
-                //      ${currentPrice0}
-                //      ${currentPrice1}
-                //      ${currentPrice2}
-                //      ${currentPrice3}
-                //      ${currentPrice4}
-                //      ${currentPrice5}
-                //      ${currentPrice6}
-                //      ${currentPrice7}
-                //      ${currentPrice8}
-                //      ${currentPrice9}
-                //      ${currentPrice10}
+        await axios.get(`https://api.covalenthq.com/v1/eth-mainnet/events/topics/0xd51a9c61267aa6196961883ecf5ff2da6619c37dac0fa92122513fb32c032d2d/?starting-block=${eth_block[6]}&ending-block=${eth_block[7]}&page-size=100000`, options).then(res => {
+            // If we got a valid response
+        aa_eth_ytd = res.data.data.items.length
+        
+        })
 
-                //      `
-                // })
-                const embed2 = new EmbedBuilder()
-                .setTitle(`Last 7 days Top Deposit - ${this_week_deposit}`)
-                .setImage('https://media.discordapp.net/attachments/1006769849181163563/1140830180265435229/F3bE3ovbcAAJQJx.png?width=600&height=600')
-                .setDescription(`This week top collection deposit:
-                ${currentPrice0}
-                ${currentPrice1}
-                ${currentPrice2}
-                ${currentPrice3}
-                ${currentPrice4}
-                ${currentPrice5}
-                ${currentPrice6}
-                ${currentPrice7}
-                ${currentPrice8}
-                ${currentPrice9}
-                ${currentPrice10}
-            `)
-                .setColor('Random')
-                
 
-                client.channels.fetch('1140496119789527120')
-                .then(channel => {
-                channel.send({embeds: [embed2]});
-                })
+        // optimism
+        await axios.get(`https://api.covalenthq.com/v1/optimism-mainnet/events/topics/0xd51a9c61267aa6196961883ecf5ff2da6619c37dac0fa92122513fb32c032d2d/?starting-block=${op_block[7]}&ending-block=latest&page-size=100000`, options).then(res => {
+            // If we got a valid response
+        aa_op_today = res.data.data.items.length
+        
+        })
 
-                 // need add bot first before can send message
+        await axios.get(`https://api.covalenthq.com/v1/optimism-mainnet/events/topics/0xd51a9c61267aa6196961883ecf5ff2da6619c37dac0fa92122513fb32c032d2d/?starting-block=${op_block[6]}&ending-block=${op_block[7]}&page-size=100000`, options).then(res => {
+            // If we got a valid response
+        aa_op_ytd = res.data.data.items.length
+        
+        })
 
-                client.guilds.cache.get('832632673155285052').channels.cache.get('832632673155285055').send({embeds: [embed2]});
+        // arbitrum
+        await axios.get(`https://api.covalenthq.com/v1/arbitrum-mainnet/events/topics/0xd51a9c61267aa6196961883ecf5ff2da6619c37dac0fa92122513fb32c032d2d/?starting-block=${arb_block[7]}&ending-block=latest&page-size=100000`, options).then(res => {
+            // If we got a valid response
+        aa_arb_today = res.data.data.items.length
+        
+        })
 
+        await axios.get(`https://api.covalenthq.com/v1/arbitrum-mainnet/events/topics/0xd51a9c61267aa6196961883ecf5ff2da6619c37dac0fa92122513fb32c032d2d/?starting-block=${arb_block[6]}&ending-block=${arb_block[7]}&page-size=100000`, options).then(res => {
+            // If we got a valid response
+        aa_arb_ytd = res.data.data.items.length
+        
+        })
+
+        // polygon
+        await axios.get(`https://api.covalenthq.com/v1/matic-mainnet/events/topics/0xd51a9c61267aa6196961883ecf5ff2da6619c37dac0fa92122513fb32c032d2d/?starting-block=${pol_block[7]}&ending-block=latest&page-size=100000`, options).then(res => {
+            // If we got a valid response
+        aa_pol_today = res.data.data.items.length
+        
+        })
+
+        await axios.get(`https://api.covalenthq.com/v1/matic-mainnet/events/topics/0xd51a9c61267aa6196961883ecf5ff2da6619c37dac0fa92122513fb32c032d2d/?starting-block=${pol_block[6]}&ending-block=${pol_block[7]}&page-size=100000`, options).then(res => {
+            // If we got a valid response
+        aa_pol_ytd = res.data.data.items.length
+        
+        })
+
+        // avax
+        await axios.get(`https://api.covalenthq.com/v1/avalanche-mainnet/events/topics/0xd51a9c61267aa6196961883ecf5ff2da6619c37dac0fa92122513fb32c032d2d/?starting-block=${avax_block[7]}&ending-block=latest&page-size=100000`, options).then(res => {
+            // If we got a valid response
+        aa_avax_today = res.data.data.items.length
+        
+        })
+
+        await axios.get(`https://api.covalenthq.com/v1/avalanche-mainnet/events/topics/0xd51a9c61267aa6196961883ecf5ff2da6619c37dac0fa92122513fb32c032d2d/?starting-block=${avax_block[6]}&ending-block=${avax_block[7]}&page-size=100000`, options).then(res => {
+            // If we got a valid response
+        aa_avax_ytd = res.data.data.items.length
+        
+        })
+
+        // bsc
+        await axios.get(`https://api.covalenthq.com/v1/bsc-mainnet/events/topics/0xd51a9c61267aa6196961883ecf5ff2da6619c37dac0fa92122513fb32c032d2d/?starting-block=${bsc_block[7]}&ending-block=latest&page-size=100000`, options).then(res => {
+            // If we got a valid response
+        aa_bsc_today = res.data.data.items.length
+        
+        })
+
+        await axios.get(`https://api.covalenthq.com/v1/bsc-mainnet/events/topics/0xd51a9c61267aa6196961883ecf5ff2da6619c37dac0fa92122513fb32c032d2d/?starting-block=${bsc_block[6]}&ending-block=${bsc_block[7]}&page-size=100000`, options).then(res => {
+            // If we got a valid response
+        aa_bsc_ytd = res.data.data.items.length
+        
+        })
+
+        // base
+        await axios.get(`https://api.covalenthq.com/v1/base-mainnet/events/topics/0xd51a9c61267aa6196961883ecf5ff2da6619c37dac0fa92122513fb32c032d2d/?starting-block=${base_block[7]}&ending-block=latest&page-size=100000`, options).then(res => {
+            // If we got a valid response
+        aa_base_today = res.data.data.items.length
+        
+        })
+
+        await axios.get(`https://api.covalenthq.com/v1/base-mainnet/events/topics/0xd51a9c61267aa6196961883ecf5ff2da6619c37dac0fa92122513fb32c032d2d/?starting-block=${base_block[6]}&ending-block=${base_block[7]}&page-size=100000`, options).then(res => {
+            // If we got a valid response
+        aa_base_ytd = res.data.data.items.length
+        
+        })
+}
+
+async function getCreationCount(){
+
+    await getCreation()
+
+               
+        const embed = new EmbedBuilder()
+        .setTitle(`Smart Account Tracking Bot`)
+        .setAuthor({ name: 'DAATA And AI Hackathon', iconURL: 'https://cryptologos.cc/logos/ethereum-eth-logo.png', url:'https://twitter.com/ahkek4'})
+        .setImage('https://thewealthmastery.io/wp-content/uploads/2023/04/Account-Abstraction-1024x536.jpg')
+        .setDescription(`24 hours Smart Account Created By Chain:
+
+        Today AA created on Ethereum - ${aa_eth_today} (${((aa_eth_today - aa_eth_ytd) * 100/ aa_eth_ytd).toFixed(2)}%)
+        Today AA created on Optimism - ${aa_op_today} (${((aa_op_today - aa_op_ytd) * 100/ aa_op_ytd).toFixed(2)}%)
+        Today AA created on Arbitrum - ${aa_arb_today} (${((aa_arb_today - aa_arb_ytd) * 100/ aa_arb_ytd).toFixed(2)}%)
+        Today AA created on Polygon - ${aa_pol_today} (${((aa_pol_today - aa_pol_ytd) * 100/ aa_pol_ytd).toFixed(2)}%)
+        Today AA created on Avalanche - ${aa_avax_today} (${((aa_avax_today - aa_avax_ytd) * 100/ aa_avax_ytd).toFixed(2)}%)
+        Today AA created on BNB Chain - ${aa_bsc_today} (${((aa_bsc_today - aa_bsc_ytd) * 100/ aa_bsc_ytd).toFixed(2)}%)
+        Today AA created on Base - ${aa_base_today} (${((aa_base_today - aa_base_ytd) * 100/ aa_base_ytd).toFixed(2)}%)
+
+    `)
+        .setColor('Random')
+        .setFooter({ text: 'Powered by Covalent', iconURL: 'https://cryptologos.cc/logos/covalent-cqt-logo.png', url:'https://www.covalenthq.com/' });
+
+
+        client.channels.fetch('832632673155285055')
+        .then(channel => {
+        channel.send({embeds: [embed]});
+        })
+
+        client.channels.fetch('1163083303465795597')
+        .then(channel => {
+        channel.send({embeds: [embed]});
+        })
+         // need add bot first before can send message
+
+        // client.guilds.cache.get('832632673155285055').channels.cache.get('832632673155285055').send({embeds: [embed2]});
+
+}
+
+async function getUserOp(){
+
+    await getBlock()
+
+    // eth
+    var uop_eth_today = 0
+    while (number_test(userop_eth_today/ 10000) == true){ 
+    await axios.get(`https://api.covalenthq.com/v1/eth-mainnet/events/topics/0x49628fd1471006c1482da88028e9ce4dbb080b815c9b0344d39e5a8e6ec1419f/?starting-block=${eth_block[7]}&ending-block=latest&page-size=10000&page-number=${uop_eth_today}`, options).then(res => {
+        // If we got a valid response
+        userop_eth_today+=res.data.data.items.length
+    })
+        uop_eth_today ++
+        if (userop_eth_today == 0) {
+            break;
+        }
+    }
+
+
+    var uop_eth_ytd = 0
+    while (number_test(userop_eth_ytd / 10000) == true){ 
+    await axios.get(`https://api.covalenthq.com/v1/eth-mainnet/events/topics/0x49628fd1471006c1482da88028e9ce4dbb080b815c9b0344d39e5a8e6ec1419f/?starting-block=${eth_block[6]}&ending-block=${eth_block[7]}&page-size=10000&page-number=${uop_eth_ytd}`, options).then(res => {
+        // If we got a valid response
+        userop_eth_ytd += res.data.data.items.length
+    })
+        uop_eth_ytd ++
+        if (userop_eth_ytd == 0) {
+            break;
+        }
+    }
+
+
+    // optimism
+    var uop_op_today = 0
+    while (number_test(userop_op_today / 10000) == true){ 
+    await axios.get(`https://api.covalenthq.com/v1/optimism-mainnet/events/topics/0x49628fd1471006c1482da88028e9ce4dbb080b815c9b0344d39e5a8e6ec1419f/?starting-block=${op_block[7]}&ending-block=latest&page-size=10000&page-number=${uop_op_today}`, options).then(res => {
+        // If we got a valid response
+        userop_op_today += res.data.data.items.length
     
-                
-            }})
+    })
+        uop_op_today++
+        if (userop_op_today == 0) {
+            break;
+        }
+    }
 
-    // console.log(guild.members.cache.get(client.user.id))
+    var uop_op_ytd = 0
+    while (number_test(userop_op_ytd / 10000) == true){ 
+    await axios.get(`https://api.covalenthq.com/v1/optimism-mainnet/events/topics/0x49628fd1471006c1482da88028e9ce4dbb080b815c9b0344d39e5a8e6ec1419f/?starting-block=${op_block[6]}&ending-block=${op_block[7]}&page-size=10000&page-number=${uop_op_ytd}`, options).then(res => {
+        // If we got a valid response
+        userop_op_ytd += res.data.data.items.length
+    
+    })
+        uop_op_ytd++
+        if (userop_op_ytd == 0) {
+            break;
+        }
+    }
+
+    // arbitrum
+    var uop_arb_today = 0
+    while (number_test(userop_arb_today / 10000) == true){ 
+    await axios.get(`https://api.covalenthq.com/v1/arbitrum-mainnet/events/topics/0x49628fd1471006c1482da88028e9ce4dbb080b815c9b0344d39e5a8e6ec1419f/?starting-block=${arb_block[7]}&ending-block=latest&page-size=10000&page-number=${uop_arb_today}`, options).then(res => {
+        // If we got a valid response
+        userop_arb_today += res.data.data.items.length
+        
+    })
+        uop_arb_today++
+        if (userop_arb_today == 0) {
+            break;
+        }
+    }
 
 
-    axios.get(`https://api.dune.com/api/v1/query/2723498/results?api_key=${process.env.API_KEY}`).then(res => {
-            // If we got a valid response
-            if(res.data ) {
-                let currentPrice0 = res.data.result.rows[0].name.concat(' - ').concat(res.data.result.rows[0].total_nft_liquidate)
-                let currentPrice1 = res.data.result.rows[1].name.concat(' - ').concat(res.data.result.rows[1].total_nft_liquidate)
-                let currentPrice2 = res.data.result.rows[2].name.concat(' - ').concat(res.data.result.rows[2].total_nft_liquidate)
-                let currentPrice3 = res.data.result.rows[3].name.concat(' - ').concat(res.data.result.rows[3].total_nft_liquidate)
-                let currentPrice4 = res.data.result.rows[4].name.concat(' - ').concat(res.data.result.rows[4].total_nft_liquidate)
-                let currentPrice5 = res.data.result.rows[5].name.concat(' - ').concat(res.data.result.rows[5].total_nft_liquidate)
-                let currentPrice6 = res.data.result.rows[6].name.concat(' - ').concat(res.data.result.rows[6].total_nft_liquidate)
-                let currentPrice7 = res.data.result.rows[7].name.concat(' - ').concat(res.data.result.rows[7].total_nft_liquidate)
-                let currentPrice8 = res.data.result.rows[8].name.concat(' - ').concat(res.data.result.rows[8].total_nft_liquidate)
-                let currentPrice9 = res.data.result.rows[9].name.concat(' - ').concat(res.data.result.rows[9].total_nft_liquidate)
-                let currentPrice10 = res.data.result.rows[10].name.concat(' - ').concat(res.data.result.rows[10].total_nft_liquidate)
-            
-                let this_week_liquidate = res.data.result.rows[0].total_nft_liquidate + res.data.result.rows[1].total_nft_liquidate
-                + res.data.result.rows[2].total_nft_liquidate + res.data.result.rows[3].total_nft_liquidate + res.data.result.rows[4].total_nft_liquidate 
-                + res.data.result.rows[5].total_nft_liquidate + res.data.result.rows[6].total_nft_liquidate + res.data.result.rows[7].total_nft_liquidate 
-                + res.data.result.rows[8].total_nft_liquidate + res.data.result.rows[9].total_nft_liquidate + res.data.result.rows[10].total_nft_liquidate
+    var uop_arb_ytd = 0
+    while (number_test(userop_arb_ytd / 10000) == true){ 
+    await axios.get(`https://api.covalenthq.com/v1/arbitrum-mainnet/events/topics/0x49628fd1471006c1482da88028e9ce4dbb080b815c9b0344d39e5a8e6ec1419f/?starting-block=${arb_block[6]}&ending-block=${arb_block[7]}&page-size=10000&page-number=${uop_arb_ytd}`, options).then(res => {
+        // If we got a valid response
+        userop_arb_ytd += res.data.data.items.length
+    
+    })
+        uop_arb_ytd++
+        if (userop_arb_ytd == 0) {
+            break;
+        }
+    }
+
+    // const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+    // await delay(1000);
+
+    // polygon
 
 
-                // interaction.reply({
-                //     content: `This week top collection liquidated:
-                //      ${currentPrice0}
-                //      ${currentPrice1}
-                //      ${currentPrice2}
-                //      ${currentPrice3}
-                //      ${currentPrice4}
-                //      ${currentPrice5}
-                //      ${currentPrice6}
-                //      ${currentPrice7}
-                //      ${currentPrice8}
-                //      ${currentPrice9}
-                //      ${currentPrice10}
+    var pol_today = 0
+    while (userop_pol_today % 10000 == 0){
+        await axios.get(`https://api.covalenthq.com/v1/matic-mainnet/events/topics/0x49628fd1471006c1482da88028e9ce4dbb080b815c9b0344d39e5a8e6ec1419f/?starting-block=${pol_block[7]}&ending-block=latest&page-size=10000&page-number=${pol_today}`, options).then(res => {
+        userop_pol_today+=res.data.data.items.length
+    })
+        pol_today++
+    }
+    
+    var pol_ytd = 0
+    while (userop_pol_ytd % 10000 == 0){
+        await axios.get(`https://api.covalenthq.com/v1/matic-mainnet/events/topics/0x49628fd1471006c1482da88028e9ce4dbb080b815c9b0344d39e5a8e6ec1419f/?starting-block=${pol_block[6]}&ending-block=${pol_block[7]}&page-size=10000&page-number=${pol_ytd}`, options).then(res => {
+        userop_pol_ytd+=res.data.data.items.length
+    })
+        pol_ytd++
+    }
+    
 
-                //      `
-                // })
+    // avax
+    var uop_avax_today = 0
+    while (userop_avax_today % 10000 == 0){ 
+    await axios.get(`https://api.covalenthq.com/v1/avalanche-mainnet/events/topics/0x49628fd1471006c1482da88028e9ce4dbb080b815c9b0344d39e5a8e6ec1419f/?starting-block=${avax_block[7]}&ending-block=latest&page-size=10000&page-number=${uop_avax_today}`, options).then(res => {
+        // If we got a valid response
+        userop_avax_today += res.data.data.items.length
+    
+    })
+        uop_avax_today++
+        if (userop_avax_today == 0) {
+            break;
+        }
+    }
 
-                const embed3 = new EmbedBuilder()
-                .setColor('Random')
-                .setTitle(`Last 7 days Total Liquidate - ${this_week_liquidate}`)
-                .setImage('https://media.discordapp.net/attachments/1006769849181163563/1140830180265435229/F3bE3ovbcAAJQJx.png?width=600&height=600')
-                .setDescription(`This week top collection liquidated:
-                ${currentPrice0}
-                ${currentPrice1}
-                ${currentPrice2}
-                ${currentPrice3}
-                ${currentPrice4}
-                ${currentPrice5}
-                ${currentPrice6}
-                ${currentPrice7}
-                ${currentPrice8}
-                ${currentPrice9}
-                ${currentPrice10}
-            `)
-                
-            client.channels.fetch('1140496119789527120')
-            .then(channel => {
-            channel.send({embeds: [embed3]});
-            })
+    var uop_avax_ytd = 0
+    while (userop_avax_ytd % 10000 == 0){ 
+    await axios.get(`https://api.covalenthq.com/v1/avalanche-mainnet/events/topics/0x49628fd1471006c1482da88028e9ce4dbb080b815c9b0344d39e5a8e6ec1419f/?starting-block=${avax_block[6]}&ending-block=${avax_block[7]}&page-size=10000&page-number=${uop_avax_ytd}`, options).then(res => {
+        // If we got a valid response
+        userop_avax_ytd += res.data.data.items.length
+    
+    })
+        uop_avax_ytd++
+        if (userop_avax_ytd == 0) {
+            break;
+        }
+    }
+    console.log(userop_avax_ytd)
 
-            // need add bot first before can send message
+    // bsc
+    var uop_bsc_today = 0
+    while (userop_bsc_today % 10000 == 0){
+    await axios.get(`https://api.covalenthq.com/v1/bsc-mainnet/events/topics/0x49628fd1471006c1482da88028e9ce4dbb080b815c9b0344d39e5a8e6ec1419f/?starting-block=${bsc_block[7]}&ending-block=latest&page-size=10000&page-number=${uop_bsc_today}`, options).then(res => {
+        // If we got a valid response
+        userop_bsc_today += res.data.data.items.length
+    
+    })
+        uop_bsc_today++
+        if (userop_bsc_today == 0) {
+            break;
+        }
+    }
 
-            client.guilds.cache.get('832632673155285052').channels.cache.get('832632673155285055').send({embeds: [embed3]});
+    var uop_bsc_ytd = 0
+    while (userop_bsc_ytd % 10000 == 0){
+    await axios.get(`https://api.covalenthq.com/v1/bsc-mainnet/events/topics/0x49628fd1471006c1482da88028e9ce4dbb080b815c9b0344d39e5a8e6ec1419f/?starting-block=${bsc_block[6]}&ending-block=${bsc_block[7]}&page-size=10000&page-number=${uop_bsc_ytd}`, options).then(res => {
+        // If we got a valid response
+        userop_bsc_ytd += res.data.data.items.length
+    
+    })
+        uop_bsc_ytd++
+        if (userop_bsc_ytd == 0) {
+            break;
+        }
+    }
 
-            
-            }})
-          
-            
+    // base
+    var uop_base_today = 0
+    while (userop_base_today % 10000 == 0){
+    await axios.get(`https://api.covalenthq.com/v1/base-mainnet/events/topics/0x49628fd1471006c1482da88028e9ce4dbb080b815c9b0344d39e5a8e6ec1419f/?starting-block=${base_block[7]}&ending-block=latest&page-size=10000&page-number=${uop_base_today}`, options).then(res => {
+        // If we got a valid response
+        userop_base_today += res.data.data.items.length
+    
+    })
+        uop_base_today++
+        if (userop_base_today == 0) {
+            break;
+        }
+    }
+
+    var uop_base_ytd = 0
+    while (userop_base_ytd % 10000 == 0){
+    await axios.get(`https://api.covalenthq.com/v1/base-mainnet/events/topics/0x49628fd1471006c1482da88028e9ce4dbb080b815c9b0344d39e5a8e6ec1419f/?starting-block=${base_block[6]}&ending-block=${base_block[7]}&page-size=10000&page-number=${uop_base_ytd}`, options).then(res => {
+        // If we got a valid response
+        userop_base_ytd += res.data.data.items.length
+    
+    })
+        uop_base_ytd++
+        if (userop_base_ytd == 0) {
+            break;
+        }
+    }
     
 
 }
 
+async function getUserOpCount(){
+
+    await getUserOp()
+
+    const embed = new EmbedBuilder()
+        .setTitle(`Smart Account Tracking Bot`)
+        .setAuthor({ name: 'DAATA And AI Hackathon', iconURL: 'https://cryptologos.cc/logos/ethereum-eth-logo.png', url:'https://twitter.com/ahkek4'})
+        .setImage('https://public.bnbstatic.com/static/academy/uploads/be47a349fab54855b99152416ab172f1.png')
+        .setDescription(`24 hours Smart Account UserOP By Chain:
+
+        Today User Operation Count on Ethereum - ${userop_eth_today} (${((userop_eth_today - userop_eth_ytd) * 100/ userop_eth_ytd).toFixed(2)}%)
+        Today User Operation Count on Optimism - ${userop_op_today} (${((userop_op_today - userop_op_ytd) * 100/ userop_op_ytd).toFixed(2)}%)
+        Today User Operation Count on Arbitrum - ${userop_arb_today} (${((userop_arb_today - userop_arb_ytd) * 100/ userop_arb_ytd).toFixed(2)}%)
+        Today User Operation Count on Polygon - ${userop_pol_today} (${((userop_pol_today - userop_pol_ytd) * 100/ userop_pol_ytd).toFixed(2)}%)
+        Today User Operation Count on Avalanche - ${userop_avax_today} (${((userop_avax_today - userop_avax_ytd) * 100/ userop_avax_ytd).toFixed(2)}%)
+        Today User Operation Count on BNB Chain - ${userop_bsc_today} (${((userop_bsc_today - userop_bsc_ytd) * 100/ userop_bsc_ytd).toFixed(2)}%)
+        Today User Operation Count on Base - ${userop_base_today} (${((userop_base_today - userop_base_ytd) * 100/ userop_base_ytd).toFixed(2)}%)
+
+    `)
+        .setColor('Random')
+        .setFooter({ text: 'Powered by Covalent', iconURL: 'https://cryptologos.cc/logos/covalent-cqt-logo.png', url:'https://www.covalenthq.com/' });
+
+
+        client.channels.fetch('832632673155285055')
+        .then(channel => {
+        channel.send({embeds: [embed]});
+        })
+
+        client.channels.fetch('1163083303465795597')
+        .then(channel => {
+        channel.send({embeds: [embed]});
+        })
+}
+
 client.on("ready", () => {
+
     console.log(`${client.user.tag} is ready!`)
 
 
-    const guildId = '1139941056994091029'
-    const guild = client.guilds.cache.get(guildId) 
+    // const guildId = '1139941056994091029'
+    // const guild = client.guilds.cache.get(guildId) 
 
     // guild.members.cache.get(client.user.id).setNickname('damn')
     // console.log(guild.members.cache.get(client.user.id).nickname)
     
-    let commands;
+    // let commands;
 
-    if(guild){
-        commands = guild.commands;
-    } else {
-        commands = client.application?.commands
-    }
+    // if(guild){
+    //     commands = guild.commands;
+    // } else {
+    //     commands = client.application?.commands
+    // }
 
     // commands.create({
     //     name: 'deposit',
@@ -274,11 +504,13 @@ client.on("ready", () => {
     //     name: 'liquidate',
     //     description: "Tell us how many NFT have being liquidated"
     // })
+    getCreationCount() // Ping server once on startup
+    getUserOpCount() // Ping server once on startup
 
-    getPrices() // Ping server once on startup
 	// Ping the server and set the new status message every x minutes. (Minimum of 1 minute)
-	setInterval(getPrices, Math.max(1, process.env.MC_PING_FREQUENCY) * 60 * 1000)
-    
+	setInterval(getCreationCount, Math.max(1, process.env.MC_PING_FREQUENCY) * 60 * 1000)
+    setInterval(getUserOpCount, Math.max(1, process.env.MC_PING_FREQUENCY) * 60 * 1000)
+
 
 });;
 
@@ -289,122 +521,7 @@ client.on('interactionCreate', interaction => {
   
     const { commandName } = interaction;
 
-    // if(commandName === 'deposit' ){
-    //     axios.get(`https://api.dune.com/api/v1/query/2725441/results?api_key=${process.env.API_KEY}`).then(res => {
-    //         // If we got a valid response
-           
-           
-    //         if(res.data ) {
-    //             let currentPrice0 = res.data.result.rows[0].collection.concat(' - ').concat(res.data.result.rows[0].nft_deposit)
-    //             let currentPrice1 = res.data.result.rows[1].collection.concat(' - ').concat(res.data.result.rows[1].nft_deposit)
-    //             let currentPrice2 = res.data.result.rows[2].collection.concat(' - ').concat(res.data.result.rows[2].nft_deposit)
-    //             let currentPrice3 = res.data.result.rows[3].collection.concat(' - ').concat(res.data.result.rows[3].nft_deposit)
-    //             let currentPrice4 = res.data.result.rows[4].collection.concat(' - ').concat(res.data.result.rows[4].nft_deposit)
-    //             let currentPrice5 = res.data.result.rows[5].collection.concat(' - ').concat(res.data.result.rows[5].nft_deposit)
-    //             let currentPrice6 = res.data.result.rows[6].collection.concat(' - ').concat(res.data.result.rows[6].nft_deposit)
-    //             let currentPrice7 = res.data.result.rows[7].collection.concat(' - ').concat(res.data.result.rows[7].nft_deposit)
-    //             let currentPrice8 = res.data.result.rows[8].collection.concat(' - ').concat(res.data.result.rows[8].nft_deposit)
-    //             let currentPrice9 = res.data.result.rows[9].collection.concat(' - ').concat(res.data.result.rows[9].nft_deposit)
-    //             let currentPrice10 = res.data.result.rows[10].collection.concat(' - ').concat(res.data.result.rows[10].nft_deposit)
-            
-    //             // interaction.reply({
-                    
-    //             //     content: `This week top collection deposit:
-    //             //      ${currentPrice0}
-    //             //      ${currentPrice1}
-    //             //      ${currentPrice2}
-    //             //      ${currentPrice3}
-    //             //      ${currentPrice4}
-    //             //      ${currentPrice5}
-    //             //      ${currentPrice6}
-    //             //      ${currentPrice7}
-    //             //      ${currentPrice8}
-    //             //      ${currentPrice9}
-    //             //      ${currentPrice10}
-
-    //             //      `
-    //             // })
-    //             const embed = new EmbedBuilder()
-    //             .setTitle('Top Deposit')
-    //             .setImage('https://media.discordapp.net/attachments/1006769849181163563/1140495521195241512/nft_lending.png?width=1067&height=600')
-    //             .setDescription(`This week top collection deposit:
-    //             ${currentPrice0}
-    //             ${currentPrice1}
-    //             ${currentPrice2}
-    //             ${currentPrice3}
-    //             ${currentPrice4}
-    //             ${currentPrice5}
-    //             ${currentPrice6}
-    //             ${currentPrice7}
-    //             ${currentPrice8}
-    //             ${currentPrice9}
-    //             ${currentPrice10}
-    //         `)
-    //             .setColor('Random')
-                
-
-    //             interaction.reply({embeds: [embed]})
-
-    //         }})
-
-           
-    // }
-
-    // if(commandName === 'liquidate' ){
-    //     axios.get(`https://api.dune.com/api/v1/query/2723498/results?api_key=${process.env.API_KEY}`).then(res => {
-    //         // If we got a valid response
-    //         if(res.data ) {
-    //             let currentPrice0 = res.data.result.rows[0].name.concat(' - ').concat(res.data.result.rows[0].total_nft_liquidate)
-    //             let currentPrice1 = res.data.result.rows[1].name.concat(' - ').concat(res.data.result.rows[1].total_nft_liquidate)
-    //             let currentPrice2 = res.data.result.rows[2].name.concat(' - ').concat(res.data.result.rows[2].total_nft_liquidate)
-    //             let currentPrice3 = res.data.result.rows[3].name.concat(' - ').concat(res.data.result.rows[3].total_nft_liquidate)
-    //             let currentPrice4 = res.data.result.rows[4].name.concat(' - ').concat(res.data.result.rows[4].total_nft_liquidate)
-    //             let currentPrice5 = res.data.result.rows[5].name.concat(' - ').concat(res.data.result.rows[5].total_nft_liquidate)
-    //             let currentPrice6 = res.data.result.rows[6].name.concat(' - ').concat(res.data.result.rows[6].total_nft_liquidate)
-    //             let currentPrice7 = res.data.result.rows[7].name.concat(' - ').concat(res.data.result.rows[7].total_nft_liquidate)
-    //             let currentPrice8 = res.data.result.rows[8].name.concat(' - ').concat(res.data.result.rows[8].total_nft_liquidate)
-    //             let currentPrice9 = res.data.result.rows[9].name.concat(' - ').concat(res.data.result.rows[9].total_nft_liquidate)
-    //             let currentPrice10 = res.data.result.rows[10].name.concat(' - ').concat(res.data.result.rows[10].total_nft_liquidate)
-            
-    //             // interaction.reply({
-    //             //     content: `This week top collection liquidated:
-    //             //      ${currentPrice0}
-    //             //      ${currentPrice1}
-    //             //      ${currentPrice2}
-    //             //      ${currentPrice3}
-    //             //      ${currentPrice4}
-    //             //      ${currentPrice5}
-    //             //      ${currentPrice6}
-    //             //      ${currentPrice7}
-    //             //      ${currentPrice8}
-    //             //      ${currentPrice9}
-    //             //      ${currentPrice10}
-
-    //             //      `
-    //             // })
-
-    //             const embed = new EmbedBuilder()
-    //             .setTitle('Top Liquidate')
-    //             .setImage('https://media.discordapp.net/attachments/1006769849181163563/1140495521195241512/nft_lending.png?width=1067&height=600')
-    //             .setDescription(`This week top collection liquidated:
-    //             ${currentPrice0}
-    //             ${currentPrice1}
-    //             ${currentPrice2}
-    //             ${currentPrice3}
-    //             ${currentPrice4}
-    //             ${currentPrice5}
-    //             ${currentPrice6}
-    //             ${currentPrice7}
-    //             ${currentPrice8}
-    //             ${currentPrice9}
-    //             ${currentPrice10}
-    //         `)
-    //             .setColor('Random')
-                
-
-    //             interaction.reply({embeds: [embed]})
-    //         }})
-
+   
             
     // }
 })
